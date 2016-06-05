@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:weightSum="1">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView3"
+            android:src="@drawable/image" android:minWidth="100dp"
+            android:minHeight="100dp"
+            android:layout_alignParentStart="true" android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" android:layout_alignParentBottom="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Connexion"
+            android:id="@+id/textView" android:layout_alignParentTop="true" android:layout_centerHorizontal="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username :"
+            android:id="@+id/textView2"
+            android:layout_marginTop="70dp"
+            android:layout_below="@+id/textView" android:layout_alignParentStart="true"
+            android:layout_marginStart="25dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password :"
+            android:id="@+id/textView3" android:layout_below="@+id/textView2"
+            android:layout_alignStart="@+id/textView2" android:layout_marginTop="93dp"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/idUsername"
+            android:layout_above="@+id/textView3"
+            android:layout_alignEnd="@+id/idPassword" android:layout_alignStart="@+id/textView"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:ems="10"
+            android:id="@+id/idPassword"
+            android:layout_alignBottom="@+id/textView3" android:layout_alignStart="@+id/textView"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Se connecter"
+            android:id="@+id/idSeConnecter"
+            android:layout_marginTop="97dp"
+            android:layout_below="@+id/idPassword" android:layout_alignEnd="@+id/idPassword"
+            android:layout_marginEnd="39dp"/>
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Annuler"
+            android:id="@+id/idAnnuler"
+            android:layout_alignTop="@+id/idSeConnecter" android:layout_toStartOf="@+id/idPassword"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:src="@drawable/burgerking"
+            android:layout_above="@+id/idUsername" android:layout_alignStart="@+id/textView2"/>
+    </RelativeLayout>
+</LinearLayout>
