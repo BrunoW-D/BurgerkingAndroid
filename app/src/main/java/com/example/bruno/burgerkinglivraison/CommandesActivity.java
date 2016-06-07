@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class CommandesActivity extends AppCompatActivity {
 
@@ -44,7 +45,13 @@ public class CommandesActivity extends AppCompatActivity {
             @Override
             public void run() {
                 ExecutionLister uneExe = new ExecutionLister();
-                uneExe.execute(restaurant_id);
+                try {
+                    uneListe = uneExe.execute(restaurant_id).get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
                 final ArrayList<HashMap<String, String>> donnees = new ArrayList<>();
                 for (Order uneOrder : uneListe){
                     HashMap<String, String> uneMap = new HashMap<>();
@@ -79,10 +86,6 @@ public class CommandesActivity extends AppCompatActivity {
         }
     }
 
-    //un setter de l'attribut uneListe
-    public static void setListe(ArrayList<Order> uneL){
-        CommandesActivity.uneListe = uneL;
-    }
 }
 
 
@@ -92,7 +95,7 @@ class ExecutionLister extends AsyncTask<Integer, Void, ArrayList<Order>>
     @Override
     protected ArrayList<Order> doInBackground(Integer... params) {
         int restaurant_id = params[0];
-        ArrayList<Order> uneListe = new ArrayList<>();
+        ArrayList<Order> liste = new ArrayList<>();
         URL uneURL;
         String resultat;
         try {
@@ -148,7 +151,7 @@ class ExecutionLister extends AsyncTask<Integer, Void, ArrayList<Order>>
                             lesMenus.add(menu);
                         }
                         Order uneOrder = new Order(id, ville, cp, adresse, prix, lesProduits, lesMenus);
-                        uneListe.add(uneOrder);
+                        liste.add(uneOrder);
                         Log.e("id : ", ""+id);
                     }
                 }
@@ -168,14 +171,10 @@ class ExecutionLister extends AsyncTask<Integer, Void, ArrayList<Order>>
             Log.e("Erreur : ", "" + e);
         }
 
-        return uneListe;
+        return liste;
 
     }
 
-    protected void onPostExecute(ArrayList<Order> liste){
-        // à la fin de la tache : on modifie l'attribut uneListe
-        CommandesActivity.setListe(liste);
-    }
 }
 
 

@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -67,7 +68,13 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                         public void run() {
 
                             ExecutionConnection uneExe = new ExecutionConnection();
-                            uneExe.execute();
+                            try {
+                                uneListe = uneExe.execute().get();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
+                            }
 
                             for (User unUser : uneListe) {
                                 //remplir les données
@@ -99,17 +106,13 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    //un setter de l'attribut uneListe
-    public static void setListe(ArrayList<User> uneL){
-        ConnectionActivity.uneListe = uneL;
-    }
 }
 
 // classe synchrone pour la lecture des users
 class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
     @Override
     protected ArrayList<User> doInBackground(Void... params) {
-        ArrayList<User> uneListe = new ArrayList<>();
+        ArrayList<User> liste = new ArrayList<>();
         URL uneURL;
         String resultat = "";
 
@@ -149,7 +152,7 @@ class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
                         String dateInscription = unObjet.getString("dateInscription");
                         int restaurant_id = unObjet.getInt("restaurant_id");
                         User unUser = new User(id, username, email, password, role, nom, prenom, telephone, ville, cp, adresse, dateInscription, restaurant_id);
-                        uneListe.add(unUser);
+                        liste.add(unUser);
                     }
                 } catch (JSONException e) {
                     Log.e("Erreur :", "Erreur de parse de Json");
@@ -169,11 +172,6 @@ class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
             Log.e("Erreur : ", "" + e);
         }
 
-        return uneListe;
-    }
-
-    protected void onPostExecute(ArrayList<User> liste){
-        // à la fin de la tache : on modifie l'attribut uneListe
-        ConnectionActivity.setListe(liste);
+        return liste;
     }
 }
