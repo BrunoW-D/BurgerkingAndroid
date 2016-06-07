@@ -114,7 +114,7 @@ class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
         String resultat = "";
 
         try {
-            uneURL = new URL("http://192.168.1.18/androidBurgerking/connection.php");
+            uneURL = new URL("http://192.168.1.18/androidBurgerking/connexion.php");
             HttpURLConnection urlConnection = (HttpURLConnection) uneURL.openConnection();
             Log.e("ca marche", "ca marche");
 
