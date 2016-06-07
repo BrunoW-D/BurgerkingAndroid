@@ -4,10 +4,12 @@ public class User {
     private String username, email, password, role, nom, prenom, telephone, ville, cp, adresse, dateInscription;
     private int id, restaurant_id;
 
+    /*
     public User() {
         this.username = this.email = this.password = this.role = this.nom = this.prenom = this.telephone = this.ville = this.cp = this.adresse = this.dateInscription = "";
         this.id = restaurant_id = 0;
     }
+    */
 
     public User(int id, String username, String email, String password, String role, String nom, String prenom, String telephone, String ville, String cp, String adresse, String dateInscription, int restaurant_id) {
         this.id = id;

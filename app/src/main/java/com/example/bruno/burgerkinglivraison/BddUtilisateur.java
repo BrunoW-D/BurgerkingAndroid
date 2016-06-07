@@ -11,7 +11,7 @@ public class BddUtilisateur {
     }
 
     public static User verifUser(String username, String password) {
-        User unUser = null;
+        User unUser;
         if (lesUsers.containsKey(username)) {
             unUser = lesUsers.get(username);
             if (unUser.getPassword().equals(password)) {

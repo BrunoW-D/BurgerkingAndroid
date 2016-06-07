@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -24,7 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,7 +30,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     private Button btnAnnuler, btnSeConnecter;
     private static ArrayList<User> uneListe = new ArrayList<>();
 
-    private static User user = new User();
+    private static User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,20 +74,20 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                                 BddUtilisateur.remplirDonnees(unUser);
                             }
                             user = BddUtilisateur.verifUser(username, password);
-                            //unUser = BddUtilisateur.verifUser(unUser.getUsername(), unUser.getPassword());
 
                         }
                     });
                     unT.start();
+                    unT.join();
                 } catch(Exception e){
                     e.printStackTrace();
                     Log.e("Erreur : ", "" + e);
                 }
 
                 if (user == null) {
-                    Toast.makeText(getApplicationContext(), "Identifiant ou mdp erronés ", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Identifiant ou mdp erronés ", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Bienvenue " + user.getPrenom(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Bienvenue " + user.getPrenom(), Toast.LENGTH_LONG).show();
 
                     //Appel d'une nouvelle vue !
                     Intent unIntent = new Intent(this, CommandesActivity.class);
@@ -107,18 +105,16 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     }
 }
 
-// classe synchrone pour la lecture des produits
+// classe synchrone pour la lecture des users
 class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
     @Override
     protected ArrayList<User> doInBackground(Void... params) {
         ArrayList<User> uneListe = new ArrayList<>();
-        //String url = "http://localhost/androidStock/lister.php";
-        //HttpURLConnection urlConnection;
         URL uneURL;
         String resultat = "";
 
         try {
-            uneURL = new URL("http://192.168.1.18/androidBurgerKing/connection.php");
+            uneURL = new URL("http://192.168.1.18/androidBurgerking/connection.php");
             HttpURLConnection urlConnection = (HttpURLConnection) uneURL.openConnection();
             Log.e("ca marche", "ca marche");
 
@@ -130,11 +126,9 @@ class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
                 String ligne;
                 while ((ligne = unBuffer.readLine()) != null) {
                     unSB.append(ligne);
-                    //Log.e("ligne", ligne);
                 }
                 // on obtient une chaine contenant le resultat du fichier de l'URL
                 resultat = unSB.toString();
-                //Log.e("resultat", resultat);
 
                 // traitement JSON du resultat
                 try {
@@ -160,7 +154,6 @@ class ExecutionConnection extends AsyncTask<Void, Void, ArrayList<User>> {
                 } catch (JSONException e) {
                     Log.e("Erreur :", "Erreur de parse de Json");
                 }
-                //return uneListe;
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.e("Erreur : ", "" + e);

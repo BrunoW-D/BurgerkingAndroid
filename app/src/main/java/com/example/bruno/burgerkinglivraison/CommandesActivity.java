@@ -1,16 +1,10 @@
 package com.example.bruno.burgerkinglivraison;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +25,7 @@ public class CommandesActivity extends AppCompatActivity {
 
     private ListView lvListe;
     private static ArrayList<Order> uneListe = new ArrayList<>();
+    private static int restaurant_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +34,13 @@ public class CommandesActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            int restaurant_id = extras.getInt("restaurant_id");
+            restaurant_id = extras.getInt("restaurant_id");
         }
-    }
-}
 
-        //this.lvListe = (ListView) findViewById(R.id.idListe);
+        this.lvListe = (ListView) findViewById(R.id.idListe);
 
         /* Execution de la tache asynchrone */
-        /*Thread unT = new Thread(new Runnable(){
+        Thread unT = new Thread(new Runnable(){
             @Override
             public void run() {
                 ExecutionLister uneExe = new ExecutionLister();
@@ -55,34 +48,34 @@ public class CommandesActivity extends AppCompatActivity {
                 final ArrayList<HashMap<String, String>> donnees = new ArrayList<>();
                 for (Order uneOrder : uneListe){
                     HashMap<String, String> uneMap = new HashMap<>();
-                    uneMap.put("reference", uneOrder.getReference());
-                    uneMap.put("designation", uneOrder.getDesignation());
-                    uneMap.put("qte", ""+uneOrder.getQte());
-                    uneMap.put("prix", ""+uneOrder.getPrix());
-                    uneMap.put("categorie", uneOrder.getCategorie());
+                    uneMap.put("id", ""+uneOrder.getId());
+                    uneMap.put("adresse", uneOrder.getAdresse());
+                    uneMap.put("cp", uneOrder.getCp());
+                    uneMap.put("ville", uneOrder.getVille());
                     donnees.add(uneMap);
                 }
-                final int to [] = {R.id.idreference, R.id.iddesignation, R.id.idqte, R.id.idprix, R.id.idcategorie};
-                final String from [] = {"reference", "designation", "qte", "prix", "categorie"};
+                final int to [] = {R.id.idId, R.id.idAdresse, R.id.idCp, R.id.idVille};
+                final String from [] = {"id", "adresse", "cp", "ville"};
                 // definition d'un adaptateur pour afficher la liste
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        SimpleAdapter unAdapter = new SimpleAdapter(getApplicationContext(), donnees, R.layout.afficheliste, from, to);
+                        //SimpleAdapter unAdapter = new SimpleAdapter(getApplicationContext(), donnees, R.layout.afficheliste, from, to);
+                        //lvListe.setAdapter(unAdapter); // affiche les donnees selon l'adaptateur
+                        //Log.e("ok", "ok");
+
+                        MyCustomAdapter unAdapter = new MyCustomAdapter(getBaseContext(), donnees, R.layout.afficheliste, from, to);
                         lvListe.setAdapter(unAdapter); // affiche les donnees selon l'adaptateur
+                        Log.e("ok", "ok");
                     }
                 });
             }
         });
         unT.start();
-    }
-
-    @Override
-    public void onClick(View v) {
-        if(v.getId() == R.id.idRetour)
-        {
-            Intent unIntent = new Intent(this, MenuGestion.class);
-            this.startActivity(unIntent);
+        try {
+            unT.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -90,21 +83,20 @@ public class CommandesActivity extends AppCompatActivity {
     public static void setListe(ArrayList<Order> uneL){
         CommandesActivity.uneListe = uneL;
     }
-} // fin de la classe
+}
 
-// classe synchrone pour la lecture des produits
-class ExecutionLister extends AsyncTask<int, Void, ArrayList<Order>>
+
+// classe synchrone pour la lecture des commandes
+class ExecutionLister extends AsyncTask<Integer, Void, ArrayList<Order>>
 {
     @Override
-    protected ArrayList<Order> doInBackground(int... params) {
-        int restaurant_id = pParams[0];
+    protected ArrayList<Order> doInBackground(Integer... params) {
+        int restaurant_id = params[0];
         ArrayList<Order> uneListe = new ArrayList<>();
-        //String url = "http://localhost/androidStock/lister.php";
-        //HttpURLConnection urlConnection;
         URL uneURL;
-        String resultat = "";
+        String resultat;
         try {
-        String url = "http://192.168.1.18/androidStock/lister.php?restaurant=" + restaurant_id;
+        String url = "http://192.168.1.18/androidBurgerking/lister.php?restaurant=" + restaurant_id;
             uneURL = new URL(url);
             HttpURLConnection urlConnection = (HttpURLConnection) uneURL.openConnection();
             try{
@@ -125,22 +117,44 @@ class ExecutionLister extends AsyncTask<int, Void, ArrayList<Order>>
                 try{
                     JSONArray tabJson = new JSONArray(resultat);
                     for (int i=0; i<tabJson.length(); i++){
-                        // GET JSONARRAY() / GEt JSONOBJECT() !
                         JSONObject unObjet = tabJson.getJSONObject(i);
-                        String reference = unObjet.getString("reference");
-                        String designation = unObjet.getString("designation");
-                        String categorie = unObjet.getString("categorie");
-                        int qte = unObjet.getInt("qte");
+                        int id = unObjet.getInt("id");
+                        String ville = unObjet.getString("ville");
+                        String cp = unObjet.getString("cp");
+                        String adresse = unObjet.getString("adresse");
                         float prix = (float) unObjet.getDouble("prix");
-                        Order uneOrder = new Order(reference, designation, categorie, qte, prix);
+
+                        JSONArray produits = unObjet.getJSONArray("produits");
+                        ArrayList<Product> lesProduits = new ArrayList<>();
+                        for (int j = 0; j < produits.length(); j++) {
+                            JSONObject unProduit = produits.getJSONObject(j);
+                            String nomProduit = unProduit.getString("produit");
+                            int qteProduit = unProduit.getInt("qte");
+                            Product unProduct = new Product(nomProduit, qteProduit);
+                            lesProduits.add(unProduct);
+                        }
+
+                        JSONArray menus = unObjet.getJSONArray("menus");
+                        ArrayList<Menu> lesMenus = new ArrayList<>();
+                        for (int j = 0; j < menus.length(); j++) {
+                            JSONObject unMenu = menus.getJSONObject(j);
+                            String nomMenu = unMenu.getString("menu");
+                            JSONArray produitsDuMenu = unMenu.getJSONArray("produits");
+                            String accompagnement = produitsDuMenu.getString(0);
+                            String boisson = produitsDuMenu.getString(1);
+                            String type = unMenu.getString("type");
+                            int qte = unMenu.getInt("qte");
+                            Menu menu = new Menu(nomMenu, accompagnement, boisson, type, qte);
+                            lesMenus.add(menu);
+                        }
+                        Order uneOrder = new Order(id, ville, cp, adresse, prix, lesProduits, lesMenus);
                         uneListe.add(uneOrder);
-                        Log.e("reference : ", reference);
+                        Log.e("id : ", ""+id);
                     }
                 }
                 catch(JSONException e){
                     Log.e("Erreur :", "Erreur de parse de Json");
                 }
-                //return uneListe;
             } catch(Exception e){
                 e.printStackTrace();
                 Log.e("Erreur : ", "" + e);
@@ -164,4 +178,4 @@ class ExecutionLister extends AsyncTask<int, Void, ArrayList<Order>>
     }
 }
 
-*/
+
